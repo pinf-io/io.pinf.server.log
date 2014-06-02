@@ -1,0 +1,40 @@
+{
+  "name": "io.pinf.server.log",
+  "version": "0.0.0",
+  "private": true,
+  "pm": "npm",
+  "dependencies": {
+    "glob": "~3.2.9",
+    "fs-extra": "~0.8.1",
+    "pio": "^0.6",
+    "smi.cli": "0.x"
+  },
+  "devDependencies": {
+    "request": "~2.34.0",
+    "mocha": "~1.18.2"
+  },
+  "scripts": {
+    "install": "./node_modules/.bin/smi install",
+    "test": "./node_modules/.bin/mocha --reporter list test/*.js"
+  },
+  "upstream": {
+    "packages": {
+      "top": [
+        "../*",
+        "../../*",
+        "../../../../*"
+      ]
+    }
+  },
+  "mappings": {
+    "io.pinf.server.www": "top/io.pinf.server.www"
+  },
+  "config": {
+    "smi.cli": {
+      "packagesDirectory": "node_modules"
+    },
+    "pio.deploy.converter": {
+      "name": "nodejs-server"
+    }
+  }
+}

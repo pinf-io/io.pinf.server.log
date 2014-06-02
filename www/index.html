@@ -1,0 +1,14 @@
+
+<script src="/lib/zepto.js"></script>
+<script src="/lib/logger.js"></script>
+
+<script>
+    window.__LOGGER.setUrl("/record");
+    window.__LOGGER.setChannel("channel-browser");
+    window.__LOGGER.log({
+    	"hello": "world"
+    });
+</script>
+
+<!-- trigger compile error -->
+<script>{</script>
