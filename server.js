@@ -3,6 +3,7 @@ const ASSERT = require("assert");
 const PATH = require("path");
 const FS = require("fs-extra");
 const NET = require("net");
+const LOGSTASH_AGENT = require("logstash/lib/agent");
 
 
 ASSERT.equal(typeof process.env.PIO_SERVICE_DATA_BASE_PATH, "string", "'PIO_SERVICE_DATA_BASE_PATH' env var must be set!");

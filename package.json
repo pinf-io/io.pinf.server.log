@@ -27,7 +27,8 @@
     }
   },
   "mappings": {
-    "io.pinf.server.www": "top/io.pinf.server.www"
+    "io.pinf.server.www": "top/io.pinf.server.www",
+    "logstash": "./vendor/github.com~bpaquet~node-logstash"
   },
   "config": {
     "smi.cli": {
