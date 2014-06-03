@@ -6,6 +6,7 @@
   "dependencies": {
     "glob": "~3.2.9",
     "fs-extra": "~0.8.1",
+    "zmq": "~2.7.0",
     "pio": "^0.6",
     "smi.cli": "0.x"
   },
@@ -37,5 +38,10 @@
     "pio.deploy.converter": {
       "name": "nodejs-server"
     }
-  }
+  },
+  "config.plugin": {
+    "io.pinf.server.firewidgets": {
+      "widgets": "./widgets/*"
+    }
+  }    
 }

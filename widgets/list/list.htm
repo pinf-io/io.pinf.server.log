@@ -1,0 +1,7 @@
+
+{{ for(var fileId in it.files) { }}
+	<tr>
+	    <td>{{=fileId}}</td>
+	    <td>{{=it.files[fileId].messageIndex}}</td>
+	</tr>
+{{ } }}
