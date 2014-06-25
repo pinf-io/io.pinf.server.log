@@ -1,0 +1,15 @@
+
+	<tr>
+		<th>Active</th>
+		<th>Size</th>
+		<th>Namespace</th>
+		<th>Alerts</th>
+	</tr>
+{{ for(var id in it.records) { }}
+	<tr record-id="{{=id}}">
+	    <td>{{=it.records[id].$display.active}}</td>
+	    <td>{{=it.records[id].$display.size}}</td>
+	    <td>{{=it.records[id].$display.namespace}}</td>
+	    <td>{{=it.records[id].$display.alerts}}</td>
+	</tr>
+{{ } }}

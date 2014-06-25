@@ -8,7 +8,8 @@
     "fs-extra": "~0.8.1",
     "zmq": "~2.7.0",
     "pio": "^0.6",
-    "smi.cli": "0.x"
+    "smi.cli": "0.x",
+    "ansi-html-stream": "0.0.2"
   },
   "devDependencies": {
     "request": "~2.34.0",

@@ -1,0 +1,19 @@
+
+	<tr>
+		<th>Active</th>
+		<th>IP</th>
+		<th>Location</th>
+		<th>Channel</th>
+		<th>Meta</th>
+		<th>Device</th>
+	</tr>
+{{ for(var id in it.records) { }}
+	<tr class="clickable" record-id="{{=id}}">
+	    <td>{{=it.records[id].$display.active}}</td>
+	    <td>{{=it.records[id].$display.ip}}</td>
+	    <td>{{=it.records[id].$display.location}}</td>
+	    <td>{{=it.records[id].$display.channel}}</td>
+	    <td>{{=it.records[id].$display.meta}}</td>
+	    <td>{{=it.records[id].$display.device}}</td>
+	</tr>
+{{ } }}
