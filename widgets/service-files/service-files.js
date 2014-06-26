@@ -33,7 +33,7 @@ define(function() {
 							return self.setHTM(_htm, {
 								records: records
 							}).then(function(tag) {
-								$("TR", tag).click(function() {
+								$("TR", tag).click(function(event) {
 									var row = null;
 									while ((row = ((row && row.parent()) || $(event.target)))) {
 										if (row.length === 0) break;

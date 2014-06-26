@@ -49,7 +49,6 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 		return uri || "all";
 	}
 
-
 	function announceChannel(ip, channel, callback) {
 		return HELPERS.r.tableEnsure(DB_NAME, "io_pinf_server_log", "incoming", function(err, incomingTable) {
             if (err) return callback(err);
@@ -112,7 +111,6 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
             });
         });
 	}
-
 
 	var updateServiceThrottled__info = {};
 	var updateServiceThrottled__pendingSync = null;
