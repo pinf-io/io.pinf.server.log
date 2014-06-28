@@ -9,7 +9,7 @@ define(function() {
 				"htm": "./" + self.widget.id + ".htm"
 			},
 			{
-				"ips": "http://log." + window.API.config.hostname + "/incoming/ip/list",
+				"ips": "http://io-pinf-server-log." + window.API.config.hostname + ":8013/incoming/ip/list",
 			},
 			[
 				{

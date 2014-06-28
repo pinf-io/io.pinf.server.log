@@ -112,6 +112,7 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
         });
 	}
 
+
 	var updateServiceThrottled__info = {};
 	var updateServiceThrottled__pendingSync = null;
 	function updateServiceThrottled(namespace, info) {
@@ -146,6 +147,7 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 			}, 5 * 1000);
 		}
 	}
+
 
 	function parseLinesForMeta(ip, channel, lines, callback) {
 		// TODO: Bring this in via config.
@@ -551,10 +553,12 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 			var files = {};
 			function fileForChannel(ip, channel, callback) {
 				if (files[channel]) {
+					console.log("Return existing file '" + path + "' for channel '" + channel + "'");
 					return callback(null, files[channel]);
 				}
 				return pathForChannel(ip, channel, function(err, path) {
 					if (err) return callback(err);
+					console.log("Determined path:", path);
 					return announceChannel(ip, channel, function(err) {
 						if (err) return callback(err);
 						console.log("Open file '" + path + "' for channel '" + channel + "'");
@@ -598,12 +602,14 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 						// TODO: If a HTTP request is detected (vs an arbitrary protocol) route it using the HTTP logic above.
 						var uri = lines[0].replace(/[\r]/g, "");
 						channel = channelForUri(uri);
-						console.log("Start channel:", channel);
+						console.log("Start channel:", ip, channel);
 						return fileForChannel(ip, channel, function (err, file) {
 							if (err) {
 								console.error(err.stack);
 								return connection.end();
 							}
+							console.log("Channel started and writing lines:", ip, channel);
+
 //							file.write("\n----------[" + (new Date().toISOString()) + "][" + ip + "]----------\n\n");
 							file.write(lines.splice(1).join("\n"));
 
