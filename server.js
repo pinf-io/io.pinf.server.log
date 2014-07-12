@@ -553,7 +553,7 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 			var files = {};
 			function fileForChannel(ip, channel, callback) {
 				if (files[channel]) {
-					console.log("Return existing file '" + path + "' for channel '" + channel + "'");
+					console.log("Return existing file for channel '" + channel + "'");
 					return callback(null, files[channel]);
 				}
 				return pathForChannel(ip, channel, function(err, path) {
