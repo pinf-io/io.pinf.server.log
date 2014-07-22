@@ -24,7 +24,7 @@ define(function() {
 								record.$display = JSON.parse(JSON.stringify(record));
 
 								// TODO: This should be done by data renderers.
-								record.$display.active = Math.floor((Date.now()-record.updatedOn)/1000/60) + " min";;
+								record.$display.active = Math.floor((Date.now()-record.updatedOn)/1000/60) + " min";
 								record.$display.size = record.size || "";
 								record.$display.namespace = id;
 								record.$display.alerts = "";

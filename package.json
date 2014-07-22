@@ -44,5 +44,5 @@
     "io.pinf.server.firewidgets": {
       "widgets": "./widgets/*"
     }
-  }    
+  }
 }
