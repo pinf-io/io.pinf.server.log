@@ -399,9 +399,9 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
             		index: HELPERS.r.desc("updatedOn")
             	}).run(HELPERS.r.conn, function(err, cursor) {
             		if (err) return callback(err);
-					if (!cursor.hasNext()) {
-						return callback(null, {});
-					}
+//					if (!cursor.hasNext()) {
+//						return callback(null, {});
+//					}
 					return cursor.toArray(function(err, results) {
 	            		if (err) return callback(err);
 	            		var records = {};
@@ -441,9 +441,9 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
             		index: HELPERS.r.desc("updatedOn")
             	}).limit(25).run(HELPERS.r.conn, function(err, cursor) {
             		if (err) return callback(err);
-					if (!cursor.hasNext()) {
-						return callback(null, {});
-					}
+//					if (!cursor.hasNext()) {
+//						return callback(null, {});
+//					}
 					return cursor.toArray(function(err, results) {
 	            		if (err) return callback(err);
 	            		var records = {};
@@ -481,9 +481,9 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 				    return row.hasFields('device');
 				}).limit(25).run(HELPERS.r.conn, function(err, cursor) {
             		if (err) return callback(err);
-					if (!cursor.hasNext()) {
-						return callback(null, {});
-					}
+//					if (!cursor.hasNext()) {
+//						return callback(null, {});
+//					}
 					return cursor.toArray(function(err, results) {
 	            		if (err) return callback(err);
 	            		var records = {};
@@ -521,9 +521,9 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 				    return row.hasFields('identity');
 				}).limit(25).run(HELPERS.r.conn, function(err, cursor) {
             		if (err) return callback(err);
-					if (!cursor.hasNext()) {
-						return callback(null, {});
-					}
+//					if (!cursor.hasNext()) {
+//						return callback(null, {});
+//					}
 					return cursor.toArray(function(err, results) {
 	            		if (err) return callback(err);
 	            		var records = {};
@@ -725,6 +725,17 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 			return callback(null, agent);
 		});
 	}
+
+
+
+	function monitorMemoryUsage() {
+		return setInterval(function () {
+
+			console.log("Memory usage:", process.memoryUsage());
+
+		}, 60 * 1000);
+	}
+	monitorMemoryUsage();
 
 
 	// TODO: Return a promise here.
