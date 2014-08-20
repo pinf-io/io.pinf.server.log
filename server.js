@@ -232,6 +232,7 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 	var activeLogFiles = {};
 
 	function fetch(req, res, path, next) {
+		console.log("fetch log", path);		
 		return FS.exists(path, function(exists) {
 			if (!exists) {
 				return res.end(JSON.stringify({
@@ -376,6 +377,17 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 			return download(req, res, path, channel, next);
 		});
     });
+
+    app.post('/arbitrary/fetch', function(req, res, next) {
+    	// TODO: Verify that we are allowed to access file by looking at config.
+    	var path = req.body.id.replace(/~{2}/g, "__DASH__").replace(/~/g, "/").replace(/__DASH__/g, "~");
+		return fetch(req, res, path, next);
+	});
+    app.get('/arbitrary/download', function(req, res, next) {
+    	var path = req.query.id.replace(/~{2}/g, "__DASH__").replace(/~/g, "/").replace(/__DASH__/g, "~");
+		return download(req, res, path, path.replace(/\//g, "-"), next);
+	});
+
 
     app.post('/service/fetch', function(req, res, next) {
     	var path = req.body.id.replace(/\.{2}/g, "");
