@@ -116,7 +116,7 @@ define(function() {
 								console.log("self.tagContent", self.tagContent);
 								console.log("Error parsing json:", err.stack);
 							}
-							showLogDialog("arbitrary", tagContent.logPath, {
+							showLogDialog(tagContent.type, tagContent.logPath, {
 								updateUrlHash: tagContent.updateUrlHash || false
 							});
 							return tag;

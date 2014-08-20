@@ -360,23 +360,24 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 	}
 
     app.post('/incoming/fetch', function(req, res, next) {
-    	var idParts = req.body.id.split("/");
+    	var idParts = req.body.id.split("~");
     	var ip = idParts.shift();
-    	var channel = idParts.join("/");
+    	var channel = idParts.join("~");
 		return pathForChannel(ip, channel, function(err, path) {
 			if (err) return next(err);
 			return fetch(req, res, path, next);
 		});
 	});
     app.get('/incoming/download', function(req, res, next) {
-    	var idParts = req.query.id.split("/");
+    	var idParts = req.query.id.split("~");
     	var ip = idParts.shift();
-    	var channel = idParts.join("/");
+    	var channel = idParts.join("~");
 		return pathForChannel(ip, channel, function(err, path) {
 			if (err) return next(err);
 			return download(req, res, path, channel, next);
 		});
     });
+
 
     app.post('/arbitrary/fetch', function(req, res, next) {
     	// TODO: Verify that we are allowed to access file by looking at config.
@@ -390,11 +391,11 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 
 
     app.post('/service/fetch', function(req, res, next) {
-    	var path = req.body.id.replace(/\.{2}/g, "");
+    	var path = req.body.id.replace(/\.{2}/g, "").replace(/~{2}/g, "__DASH__").replace(/~/g, "/").replace(/__DASH__/g, "~");
 		return fetch(req, res, path, next);
 	});
     app.get('/service/download', function(req, res, next) {
-    	var path = req.query.id.replace(/\.{2}/g, "");
+    	var path = req.query.id.replace(/\.{2}/g, "").replace(/~{2}/g, "__DASH__").replace(/~/g, "/").replace(/__DASH__/g, "~");
 		return download(req, res, path, path.replace(/\//g, "-"), next);
 	});
 
