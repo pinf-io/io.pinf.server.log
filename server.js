@@ -738,6 +738,18 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 	monitorMemoryUsage();
 
 
+	process.on('exit', function(code) {
+		console.log("Processing exit code: " + code);
+	});
+	process.on('SIGQUIT', function() {
+		console.log("Processing code: SIGQUIT");
+	});
+	process.on('SIGTERM', function() {
+		console.log("Processing code: SIGTERM");
+		process.exit(0);
+	});
+
+
 	// TODO: Return a promise here.
 	return initServiceLogs(function(err) {
 		if (err) {
