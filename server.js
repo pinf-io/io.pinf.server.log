@@ -520,19 +520,38 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 		});
 	});
 
-	app.get(/\/incoming\/identity\/list$/, function(req, res, next) {
-		function getRecords(callback) {
+	function incomingIdentityList (req, res, next) {
+		function getRecords(args, callback) {
 			return HELPERS.r.tableEnsure(DB_NAME, "io_pinf_server_log", "incoming", {
 				indexes: [
 					"updatedOn"
 				]
 			}, function(err, table) {
 				if (err) return callback(err);
-				return table.orderBy({
+
+				var query = table.orderBy({
             		index: HELPERS.r.desc("updatedOn")
             	}).filter(function(row) {
 				    return row.hasFields('identity');
-				}).limit(25).run(HELPERS.r.conn, function(err, cursor) {
+				});
+
+				if (args && args.filter) {
+					// TODO: Use firenode query language to convert JSON into rethinkdb.
+					if (args.filter.identity) {
+						if (/^\/.+\/$/.test(args.filter.identity)) {
+							console.log("Apply filter '" + args.filter.identity.substring(1, args.filter.identity.length-1) + "' as RegExp");
+							query = query.filter(function(row) {
+							    return row("identity").match(args.filter.identity.substring(1, args.filter.identity.length-1));
+							});
+						} else {
+							console.log("Apply filter '" + args.filter.identity + "' as exact string");
+							query = query.filter({
+								identity: args.filter.identity
+							});
+						}
+					}
+				}
+				return query.limit(25).run(HELPERS.r.conn, function(err, cursor) {
             		if (err) return callback(err);
 //					if (!cursor.hasNext()) {
 //						return callback(null, {});
@@ -548,7 +567,7 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 				});
 			});
 		}
-		return getRecords(function(err, records) {
+		return getRecords(req.body || null, function(err, records) {
 			if (err) return next(err);
 			var payload = JSON.stringify(records, null, 4);
 			res.writeHead(200, {
@@ -558,7 +577,9 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 			});
 			return res.end(payload);
 		});
-	});
+	};
+	app.get(/\/incoming\/identity\/list$/, incomingIdentityList);
+	app.post(/\/incoming\/identity\/list$/, incomingIdentityList);
 
 
 	if (TCP_PORT) {
