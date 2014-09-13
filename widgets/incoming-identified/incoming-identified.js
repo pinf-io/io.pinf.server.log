@@ -4,6 +4,10 @@ define(function() {
 	return function() {
 		var self = this;
 
+		// TODO: Match this better so you can customize more than just the header.
+		var header = (self.tagContent && /<tr>/.test(self.tagContent) && self.tagContent) || null;
+
+
 		return self.hook(
 			{
 				"htm": "./" + self.widget.id + ".htm"
@@ -17,6 +21,12 @@ define(function() {
 					streams: [ "identities"],
 					handler: function(_htm, _identities) {
 
+						var activeFilter = null;
+						self.setFilter = function(filter) {
+							activeFilter = filter;
+							_identities.setFilter(activeFilter);
+						}
+
 						_identities.on("data", function(records) {
 							for (var id in records) {
 								records[id].$display = JSON.parse(JSON.stringify(records[id]));
@@ -27,7 +37,8 @@ define(function() {
 								records[id].$display.identity = records[id].identity || "";
 							}
 							return self.setHTM(_htm, {
-								records: records
+								records: records,
+								header: header
 							}).then(function (tag) {
 								$("TR", tag).click(function(event) {
 									var row = null;

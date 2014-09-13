@@ -1,0 +1,82 @@
+
+<div class="view-log-list">
+
+	<table class="table table-hover table-clickable-rows">
+	    <tbody x-widget="io.pinf.server.log/incoming-identified">
+	    	<tr>
+		        <th>Active</th>
+		        <th>Location</th>
+		        <th>Platform</th>
+		        <th>Runtime ID</th>
+		    </tr>
+	    </tbody>
+	</table>
+
+</div>
+<div class="view-log-detail hidden">
+
+	<table>
+  		<tr>
+  			<td class="menu">
+				<nav class="navbar" role="navigation">
+				  <div class="container-fluid">
+					<div class="title"></div>
+				  </div>
+				</nav>
+				<nav class="navbar navbar-right" role="navigation">
+				  <div class="container-fluid">
+					<div class="start"></div>
+					<div class="size"></div>
+			        <button class="btn btn-default btn-xs button-showall">Show All</button>
+			        <button class="btn btn-default btn-xs button-download">Download All</button>
+			        <button class="btn btn-default btn-xs button-print">Print</button>
+			        <button class="btn btn-primary btn-sm button-close">Back</button>
+				  </div>
+				</nav>
+  			</td>
+  		</tr>
+  		<tr>
+  			<td>
+		      	<iframe></iframe>
+  			</td>
+  		</tr>
+  	</table>
+
+</div>
+
+<style>
+	DIV.view-log-list {
+		overflow-y: auto;
+	}
+	DIV.view-log-detail {
+		padding: 0px;
+	}
+	DIV.view-log-detail TABLE {
+		width: 100%;
+		height: 100%;
+	}
+	DIV.view-log-detail TABLE TD.menu {
+		padding-bottom: 5px;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+	DIV.view-log-detail TABLE TD.menu DIV.start,
+	DIV.view-log-detail TABLE TD.menu DIV.size {
+		display: inline-block;
+		margin-right: 20px;
+	}
+	DIV.view-log-detail TABLE TR:first-child .navbar {
+		background-color: #ffffff;
+		margin-bottom: 0px;
+		border: 0px;
+		min-height: 15px;
+	}
+	DIV.view-log-detail TABLE TR:last-child {
+		height: 100%;
+	}
+	DIV.view-log-detail IFRAME {
+		border: 0px;
+		width: 100%;
+		height: 100%;
+	}
+</style>

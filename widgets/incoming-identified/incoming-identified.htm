@@ -1,9 +1,13 @@
+{{? it.header}}
+	{{=it.header}}
+{{??}}
 	<tr>
 		<th>Active</th>
 		<th>Location</th>
 		<th>Platform</th>
 		<th>Identity</th>
 	</tr>
+{{?}}
 {{ for(var id in it.records) { }}
 	<tr class="clickable" record-id="{{=id}}">
 	    <td>{{=it.records[id].$display.active}}</td>
