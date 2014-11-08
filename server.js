@@ -765,7 +765,11 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 	function monitorMemoryUsage() {
 		return setInterval(function () {
 
-			console.log("Memory usage:", process.memoryUsage());
+			var usage = process.memoryUsage();
+			// usage = { rss: 180654080, heapTotal: 152136504, heapUsed: 111973544 }
+			// usage = { rss:  77484032, heapTotal:  62339584, heapUsed:  30995360 }
+
+			console.log("Memory usage:", usage);
 
 		}, 60 * 1000);
 	}
