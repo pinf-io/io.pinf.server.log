@@ -3,6 +3,10 @@ const ASSERT = require("assert");
 const PATH = require("path");
 const FS = require("fs-extra");
 const NET = require("net");
+const LOGSTASH_AGENT = require("logstash/lib/agent");
+const LOGSTASH_PATTERNS_LOADER = require("logstash/lib/lib/patterns_loader");
+const LOGSTASH_LOGGER = require("logstash/node_modules/log4node");
+const ZMQ = require("zmq");
 const STREAM = require("stream");
 const ANSI_HTML_STREAM = require("ansi-html-stream");
 
@@ -26,7 +30,6 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 	}
 
 	function pathForChannel (ip, channel, callback) {
-		console.log("pathForChannel()", ip, channel);
 		var path = PATH.join(
 			logBasePath,
 			ip,
@@ -34,11 +37,12 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 		);
 		return FS.exists(PATH.dirname(path), function (exists) {
 			if (exists) return callback(null, path);
-			return FS.mkdirs(PATH.dirname(path), function(err) {
+			return FS.mkdirsSync(PATH.dirname(path), function(err) {
 				if (err) return callback(err);
 				return callback(null, path);
 			});
 		});
+		return path;
 	}
 
 	function channelForUri (uri) {
@@ -224,6 +228,8 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 		});
 	});
 
+
+	var activeLogFiles = {};
 
 	function fetch(req, res, path, next) {
 		console.log("fetch log", path);		
@@ -414,6 +420,10 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 	            		var records = {};
 	            		results.forEach(function (record) {
 	            			records[record.id] = record;
+	            			if (activeLogFiles[record.id]) {
+								// TODO: This should be scoped based on user watching table.
+	            				records[record.id].messageIndex = activeLogFiles[record.id].messageIndex;
+	            			}
 	            		});
 						return callback(null, records);
 					});
@@ -576,7 +586,6 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 		function startTCPServer(callback) {
 			var files = {};
 			function fileForChannel(ip, channel, callback) {
-				console.log("fileForChannel()", ip, channel);
 				if (files[channel]) {
 					console.log("Return existing file for channel '" + channel + "'");
 					return callback(null, files[channel]);
@@ -684,41 +693,88 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 	function initServiceLogs(callback) {
 		return FS.readdir("/opt/log", function(err, filenames) {
 			if (err) return callback(err);
-			var monitorFiles = {};
-			var waitfor = HELPERS.API.WAITFOR.parallel(function (err) {
-				if (err) return callback(err);
-				setInterval(function () {
-					Object.keys(monitorFiles).forEach(function (path) {
-						FS.stat(path, function (err, stat) {
-							if (err) {
-								console.error(err.stack);
-								return;
-							}
-							if (stat.size !== monitorFiles[path].size) {
-								monitorFiles[path].size = stat.size;
-								console.log("File '" + path + "' has changed in size:", stat.size);
-								updateServiceThrottled(path, monitorFiles[path]);
-							}
-						});
-					});
-				}, 15 * 1000);
-			});
+			var waitfor = HELPERS.API.WAITFOR.parallel(callback);
 			filenames.forEach(function (filename) {
-				waitfor(function (done) {
-
-					var path = PATH.join("/opt/log", filename);
-					var size = FS.statSync(path).size;
-
-					monitorFiles[path] = {
-						size: size
-					};
-
-					return announceService(path, done);
-				});
+				waitfor(PATH.join("/opt/log", filename), announceService);
 			});
 			return waitfor();
 		});
 	}
+
+	function initZeroMQServer(callback) {
+		var server = ZMQ.socket("pull");
+		server.on("error", callback);
+		server.on("message", function(message) {			
+			try {
+				message = JSON.parse(message);
+			} catch(err) {
+				console.error("Warning: Error '" + err.stack + "' parsing message:", message);
+			}
+
+//console.log("goit message", message);
+
+			if (!activeLogFiles[message.path]) {
+				activeLogFiles[message.path] = {
+					messageIndex: 0
+				};
+			}
+			activeLogFiles[message.path].messageIndex += 1;
+
+			updateServiceThrottled(message.path, {
+				size: FS.statSync(message.path).size
+			});
+		});
+		console.log("Bind ZMQ server to: " + "tcp://127.0.0.1:5002");
+		return server.bind("tcp://127.0.0.1:5002", function(err) {
+			if (err) return callback(err);
+			return callback(null, server);
+		});
+	}
+
+
+	function initLogstash(callback) {
+
+		LOGSTASH_LOGGER.setLogLevel("info");
+
+		var agent = LOGSTASH_AGENT.create();
+		agent.on("error", callback);
+
+		LOGSTASH_PATTERNS_LOADER.add(PATH.join(require.resolve("logstash/lib/agent"), "../patterns"));
+
+//input://file:///opt/logs/os.inception.server.*.log?type=services
+//output://file:///opt/logs/activity.log?serializer=json_logstash
+
+		return agent.start([
+			'filter://add_host://',
+		    'filter://add_timestamp://',
+		    'filter://add_version://',
+			"input://file:///opt/log/*.log",
+			"output://zeromq://tcp://127.0.0.1:5002"
+		], function(err) {
+			if (err) {
+				err.message += " (while loading config into logstash agent)";
+				err.stack += "\n(while loading config into logstash agent)";
+				return callback(err);
+			}
+			return callback(null, agent);
+		});
+	}
+
+
+
+	function monitorMemoryUsage() {
+		return setInterval(function () {
+
+			var usage = process.memoryUsage();
+			// usage = { rss: 180654080, heapTotal: 152136504, heapUsed: 111973544 }
+			// usage = { rss:  77484032, heapTotal:  62339584, heapUsed:  30995360 }
+
+			console.log("Memory usage:", usage);
+
+		}, 60 * 1000);
+	}
+	monitorMemoryUsage();
+
 
 	process.on('exit', function(code) {
 		console.log("Processing exit code: " + code);
@@ -738,7 +794,48 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 			console.error("Error initializing service logs:", err.stack);
 			return;
 		}
+		return initZeroMQServer(function(err, server) {
+			if (err) {
+				console.error("Error starting ZeroMQ server:", err.stack);
+				return;
+			}
+			if (server) {
+				console.log("ZeroMQ server started!");
+				function shutdown() {
+					server.close(function() {
+						// Nothing more to do.
+					});
+				}
+				process.on('SIGTERM', function() {
+				  shutdown();
+				});
+				process.on('SIGINT', function() {
+				  shutdown();
+				});
+			}
 
-		console.log("Monitoring service logs");
+			return initLogstash(function(err, agent) {
+				if (err) {
+					console.error("Error starting logstash agent:", err.stack);
+					return;
+				}
+				if (agent) {
+					console.log("Logstash agent started!");
+					function shutdown() {
+						agent.close(function() {
+							// Nothing more to do.
+						});
+					}
+					process.on('SIGTERM', function() {
+					  shutdown();
+					});
+					process.on('SIGINT', function() {
+					  shutdown();
+					});
+				}
+
+
+			});
+		});
 	});
 });

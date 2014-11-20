@@ -6,10 +6,12 @@
   "dependencies": {
     "glob": "~3.2.9",
     "fs-extra": "~0.8.1",
-    "zmq": "~2.7.0",
     "pio": "^0.6",
     "smi.cli": "0.x",
     "ansi-html-stream": "0.0.2"
+  },
+  "dependencies_DISABLED": {
+    "zmq": "~2.7.0"
   },
   "devDependencies": {
     "request": "~2.34.0",
@@ -29,7 +31,9 @@
     }
   },
   "mappings": {
-    "io.pinf.server.www": "top/io.pinf.server.www",
+    "io.pinf.server.www": "top/io.pinf.server.www"
+  },
+  "mappings_DISABLED": {
     "logstash": "./vendor/github.com~bpaquet~node-logstash"
   },
   "config": {
