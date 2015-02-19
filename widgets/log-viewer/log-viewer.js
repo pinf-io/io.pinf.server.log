@@ -151,6 +151,25 @@ define(function() {
 			$('.view-log-list', self.tag).css('height', $(window).height()-5);
 		}
 
+/*
+		function ensureFireConsole () {
+			if (ensureFireConsole._instance) {
+				return ensureFireConsole._instance;
+			}
+			var uri = "http://fireconsole-widget-console.os-inception-iae5f554-5.vm.cadorn.github.pinf.me:8013/demo.js";
+			var deferred = self.API.Q.defer();
+			$.pinf.sandbox(uri, function (sandbox) {
+		        return sandbox.main(null).then(deferred.resolve, deferred.reject);
+		    }, function (err) {
+		        console.error("Error while loading bundle '" + uri + "':", err.stack);
+		        return deferred.reject(err);
+		    });
+			return self.API.Q.when(deferred.promise).then(function (instance) {
+				ensureFireConsole._instance = instance;
+				return instance;
+			});
+		}
+*/
 
 		return self.hook(
 			{
@@ -162,29 +181,35 @@ define(function() {
 				{
 					resources: [ "htm" ],
 					handler: function (_htm) {
-						return self.setHTM(_htm).then(function(tag) {
 
-							if (
-								typeof parent === "object" &&
-								typeof parent.postMessage === "function"
-							) {
-								parent.postMessage("notify:IO-PINF-STACK:LOADED", "*");
-							}
+// TODO: Use this instance once fireconsole can act reliably without an iframe.
+//						return ensureFireConsole().then(function (FIRECONSOLE) {
+//console.log("FIRECONSOLE 111", FIRECONSOLE);
 
-							$("BUTTON.button-showall", tag).click(function() {
-								$("IFRAME", tag).attr("src", baseUrl + "/" + activeId.split("/").shift() + "/download?id=" + activeId.split("/").slice(1).join("/") + "&format=html&time=" + Date.now());
-							});
-							$("BUTTON.button-download", tag).click(function() {
-								$("IFRAME", tag).attr("src", baseUrl + "/" + activeId.split("/").shift() + "/download?id=" + activeId.split("/").slice(1).join("/") + "&format=raw&time=" + Date.now());
-							});
-							$("BUTTON.button-print", tag).click(function() {
-								$("IFRAME", tag)[0].contentWindow.postMessage("PRINT", "*");
-							});
-							$("BUTTON.button-close", tag).click(function () {
-								showList();
-							});
+							return self.setHTM(_htm).then(function(tag) {
 
-							return tag;
+								if (
+									typeof parent === "object" &&
+									typeof parent.postMessage === "function"
+								) {
+									parent.postMessage("notify:IO-PINF-STACK:LOADED", "*");
+								}
+
+								$("BUTTON.button-showall", tag).click(function() {
+									$("IFRAME", tag).attr("src", baseUrl + "/" + activeId.split("/").shift() + "/download?id=" + activeId.split("/").slice(1).join("/") + "&format=html&time=" + Date.now());
+								});
+								$("BUTTON.button-download", tag).click(function() {
+									$("IFRAME", tag).attr("src", baseUrl + "/" + activeId.split("/").shift() + "/download?id=" + activeId.split("/").slice(1).join("/") + "&format=raw&time=" + Date.now());
+								});
+								$("BUTTON.button-print", tag).click(function() {
+									$("IFRAME", tag)[0].contentWindow.postMessage("PRINT", "*");
+								});
+								$("BUTTON.button-close", tag).click(function () {
+									showList();
+								});
+
+								return tag;
+//							});
 						});
 					}
 				}

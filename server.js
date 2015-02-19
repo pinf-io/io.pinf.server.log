@@ -25,6 +25,13 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 		FS.mkdirsSync(logBasePath);
 	}
 
+
+	app.use(function (req, res, next) {
+		res.view.fireconsoleHost = config.config.fireconsoleHost;
+		return next();
+	});
+
+
 	function pathForChannel (ip, channel, callback) {
 		console.log("pathForChannel()", ip, channel);
 		var path = PATH.join(
