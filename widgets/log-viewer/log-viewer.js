@@ -91,6 +91,11 @@ define(function() {
 	    	}
 	    }
 
+		function loadEarlier () {
+	    	$("IFRAME", self.tag)[0].contentWindow.postMessage({
+	    		action: "LOAD_EARLIER"
+	    	}, "*");
+		}
 
 		// Trigger the detail display of a log file.
 		self.api.showRawLogDialog = function(type, id, options) {
@@ -195,6 +200,9 @@ define(function() {
 									parent.postMessage("notify:IO-PINF-STACK:LOADED", "*");
 								}
 
+								$("BUTTON.button-loadearlier", tag).click(function() {
+									loadEarlier();
+								});
 								$("BUTTON.button-showall", tag).click(function() {
 									$("IFRAME", tag).attr("src", baseUrl + "/" + activeId.split("/").shift() + "/download?id=" + activeId.split("/").slice(1).join("/") + "&format=html&time=" + Date.now());
 								});

@@ -258,12 +258,17 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 								data: ""
 							});
 						}
-						var tailSize = 200000;
-						if (offset === 0 && req.body.all !== true) {
-							offset = stat.size - tailSize;
-							if (offset < 0) offset = 0;
+						var size = stat.size;
+						if (req.body.virtualSize) {
+							size = req.body.virtualSize;
+						} else {
+							var tailSize = 500000;
+							if (offset === 0 && req.body.all !== true) {
+								offset = size - tailSize;
+								if (offset < 0) offset = 0;
+							}
 						}
-						var buffer = new Buffer(stat.size - offset);
+						var buffer = new Buffer(size - offset);
 						return FS.read(fd, buffer, 0, buffer.length, offset, function(err) {
 							if (err) return callback(err);
 							var startOffset = offset;
@@ -271,7 +276,7 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 							return callback(null, {
 								startOffset: startOffset,
 								offset: offset,
-								size: stat.size,
+								size: size,
 								data: buffer.toString()
 							});
 						});

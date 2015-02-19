@@ -9,7 +9,8 @@
             var fetching = false;
             var activeIntervalId = null;
             var fireconsole = null;
-            function fetch(id) {
+            var startOffset = null;
+            function fetch (id) {
                 fetchArgs = {
                     type: id.split("/").shift(),
                     id: id.split("/").slice(1).join("/"),
@@ -17,7 +18,7 @@
                 };
                 var intervalId = null;
                 var firstFetch = true;
-                function fetch() {
+                function fetch () {
                     if (!fetchArgs) {
                         return clearLog();
                     }
@@ -39,9 +40,10 @@
                                 return;
                             }
                             if (firstFetch) {
+                                startOffset = data.startOffset;
                                 parent.postMessage({
                                     action: "SYNC_MENU",
-                                    startOffset: data.startOffset
+                                    startOffset: startOffset
                                 }, "*");
                             }
                             parent.postMessage({
@@ -92,13 +94,18 @@
                 activeIntervalId = intervalId = setInterval(fetch, 5000);
                 return fetch();
             }
-            function clearLog() {
+            function clearLog () {
                 fireconsole.fireconsole.callApi("console.clear");
                 //$("body").html("");
             }
-            function appendToLog(html) {
+            function appendToLog (html) {
                 fireconsole.console.log(html);
                 //$("body").append(html);
+            }
+            function prependToLog (html) {
+                fireconsole.console.log(html, {
+                    prepend: true
+                });
             }
             function loadFireConsole (callback) {
                 var uri = "http://{{=view.fireconsoleHost}}/demo.js";
@@ -126,7 +133,7 @@
                     return callback(err);
                 });
             }
-            function ready() {
+            function ready () {
                 window.addEventListener("message", function(event) {
                     if (typeof event.data === "string") {
                         if (event.data === "PRINT") {
@@ -139,6 +146,34 @@
                         } else
                         if (event.data.action === "FETCH_LOG") {
                             fetch(event.data.id);
+                        } else
+                        if (event.data.action === "LOAD_EARLIER") {
+                            console.log("fetch earlier");
+                            var args = {};
+                            for (var name in fetchArgs) {
+                                args[name] = fetchArgs[name];
+                            }
+                            args.virtualSize = startOffset;
+                            args.offset = args.virtualSize - 500000;
+                            if (args.offset < 0) args.offset = 0;
+                            $.ajax({
+                                type: "POST",
+                                url: "/" + args.type + "/fetch",
+                                data: JSON.stringify(args),
+                                dataType: "json",
+                                contentType: "application/json",
+                                success: function(data, textStatus, jqXHR) {
+                                    console.log("fetch earlier data", data.data.length);
+                                    if (data.data) {
+                                        prependToLog(data.data);
+                                    }
+                                    startOffset = data.startOffset;
+                                    parent.postMessage({
+                                        action: "SYNC_MENU",
+                                        startOffset: startOffset
+                                    }, "*");
+                                }
+                            });
                         }
                 	}
                 }, false);
@@ -150,7 +185,6 @@
                     parent.postMessage("LOG_BLANK_PAGE_LOADED", "*");
                 });
             }
-         
         </script>
     </head>
     <body onload="ready()">
