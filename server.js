@@ -27,6 +27,7 @@ require("io.pinf.server.www").for(module, __dirname, function(app, config, HELPE
 
 
 	app.use(function (req, res, next) {
+		if (!res.view) res.view = {};
 		res.view.fireconsoleHost = config.config.fireconsoleHost;
 		return next();
 	});
